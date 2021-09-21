@@ -80,7 +80,7 @@ case "$CLUSTER" in
 
     check_managed_clusters
     oc get pods -n "${OPERATORNAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log
-    oc get csv -n "${OPERATORNAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log 
+    oc get csv -n "${OPERATORNAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log
     oc adm inspect  ns/"${OPERATORNAMESPACE}"  --dest-dir=must-gather
     oc adm inspect  ns/open-cluster-management-hub  --dest-dir=must-gather
     # request from https://bugzilla.redhat.com/show_bug.cgi?id=1853485
@@ -88,6 +88,11 @@ case "$CLUSTER" in
     oc adm inspect  ns/hive  --dest-dir=must-gather
     oc adm inspect  multiclusterengines.multicluster.openshift.io --all-namespaces  --dest-dir=must-gather
     oc adm inspect hiveconfigs.hive.openshift.io --all-namespaces  --dest-dir=must-gather
+    
+    oc adm inspect csv --all-namespaces  --dest-dir=must-gather
+    oc adm inspect subscription --all-namespaces  --dest-dir=must-gather
+    oc adm inspect installplan --all-namespaces  --dest-dir=must-gather
+    oc adm inspect operatorgroup --all-namespaces  --dest-dir=must-gather
 
     oc adm inspect baremetalassets.inventory.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
     oc adm inspect baremetalhosts.metal3.io --all-namespaces  --dest-dir=must-gather
@@ -114,9 +119,6 @@ case "$CLUSTER" in
     oc adm inspect managedclusteraddons.addon.open-cluster-management.io  --all-namespaces  --dest-dir=must-gather
 
     oc adm inspect ns/openshift-monitoring  --dest-dir=must-gather
-    
-    # gather hub imported as managed
-    gather_spoke
     ;;
 
       
