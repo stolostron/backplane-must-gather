@@ -8,8 +8,9 @@ BASE_COLLECTION_PATH="/must-gather"
 mkdir -p ${BASE_COLLECTION_PATH}
 
 CLUSTER="SPOKE"
-HUBNAMESPACE=""
+ISHUB=""
 MCNAMESPACE=""
+OPERATORNAMESPACE=""
 
 check_managed_clusters() {
     echo "The list of managed clusters that are configured on this Hub:" >> ${BASE_COLLECTION_PATH}/gather-managed.log
@@ -28,14 +29,18 @@ check_managed_clusters() {
 }
 
 check_if_hub () {
-    HUBNAMESPACE=`oc get multiclusterengines.multicluster.openshift.io --all-namespaces --no-headers=true| awk '{ print $1 }'`
-    echo "$HUBNAMESPACE"
+    ISHUB=`oc get multiclusterengines.multicluster.openshift.io --all-namespaces --no-headers=true| awk '{ print $1 }'`
+    echo "$ISHUB"
      #if [[ "$NAMESPACE" != error* ]];
      #   then CLUSTER="HUB"
      #fi  
-     if [[ -z "$HUBNAMESPACE" ]] ;
+     if [[ -z "$ISHUB" ]] ;
         then CLUSTER="SPOKE"
-     else  CLUSTER="HUB"
+     else  
+        CLUSTER="HUB"
+        echo "Cameron"
+        OPERATORNAMESPACE="`oc get deploy -l control-plane=backplane-operator --all-namespaces --no-headers=true | awk '{ print $1 }'`"
+        echo "${OPERATORNAMESPACE}"
      fi 
 }
 
@@ -76,10 +81,11 @@ case "$CLUSTER" in
     "HUB")
 
     check_managed_clusters
-    oc get pods -n "backplane-operator-system" > ${BASE_COLLECTION_PATH}/gather-acm.log
-    oc get csv -n "backplane-operator-system" > ${BASE_COLLECTION_PATH}/gather-acm.log 
-    oc adm inspect  ns/"backplane-operator-system"  --dest-dir=must-gather
-    oc adm inspect  ns/backplane-operator-system  --dest-dir=must-gather
+    echo ${OPERATORNAMESPACE}
+    oc get pods -n "${OPERATORNAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log
+    oc get csv -n "${OPERATORNAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log 
+    oc adm inspect  ns/"${OPERATORNAMESPACE}"  --dest-dir=must-gather
+    oc adm inspect  ns/open-cluster-management-hub  --dest-dir=must-gather
     # request from https://bugzilla.redhat.com/show_bug.cgi?id=1853485
     oc get proxy -o yaml > ${BASE_COLLECTION_PATH}/gather-proxy.log
     oc adm inspect  ns/hive  --dest-dir=must-gather
