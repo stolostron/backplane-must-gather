@@ -38,9 +38,7 @@ check_if_hub () {
         then CLUSTER="SPOKE"
      else  
         CLUSTER="HUB"
-        echo "Cameron"
         OPERATORNAMESPACE="`oc get deploy -l control-plane=backplane-operator --all-namespaces --no-headers=true | awk '{ print $1 }'`"
-        echo "${OPERATORNAMESPACE}"
      fi 
 }
 
@@ -81,7 +79,6 @@ case "$CLUSTER" in
     "HUB")
 
     check_managed_clusters
-    echo ${OPERATORNAMESPACE}
     oc get pods -n "${OPERATORNAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log
     oc get csv -n "${OPERATORNAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log 
     oc adm inspect  ns/"${OPERATORNAMESPACE}"  --dest-dir=must-gather
