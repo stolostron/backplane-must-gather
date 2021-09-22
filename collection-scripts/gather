@@ -89,10 +89,10 @@ case "$CLUSTER" in
     oc adm inspect  multiclusterengines.multicluster.openshift.io --all-namespaces  --dest-dir=must-gather
     oc adm inspect hiveconfigs.hive.openshift.io --all-namespaces  --dest-dir=must-gather
     
-    oc adm inspect csv --all-namespaces  --dest-dir=must-gather
-    oc adm inspect subscription --all-namespaces  --dest-dir=must-gather
-    oc adm inspect installplan --all-namespaces  --dest-dir=must-gather
-    oc adm inspect operatorgroup --all-namespaces  --dest-dir=must-gather
+    oc adm inspect clusterserviceversions.operators.coreos.com --all-namespaces  --dest-dir=must-gather
+    oc adm inspect subscriptions.operators.coreos.com      --all-namespaces  --dest-dir=must-gather
+    oc adm inspect installplans.operators.coreos.com --all-namespaces  --dest-dir=must-gather
+    oc adm inspect operatorgroups.operators.coreos.com --all-namespaces  --dest-dir=must-gather
 
     oc adm inspect baremetalassets.inventory.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
     oc adm inspect baremetalhosts.metal3.io --all-namespaces  --dest-dir=must-gather
