@@ -39,6 +39,7 @@ check_if_hub () {
      else  
         CLUSTER="HUB"
         OPERATORNAMESPACE="`oc get deploy -l control-plane=backplane-operator --all-namespaces --no-headers=true | awk '{ print $1 }'`"
+        DEPLOYMENTNAMESPACE="`oc get mce $ISHUB -oyaml | grep 'targetNamespace: ' | sed -n 2p | awk '{ print $2}'`"
      fi 
 }
 
@@ -80,8 +81,9 @@ case "$CLUSTER" in
 
     check_managed_clusters
     oc get pods -n "${OPERATORNAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log
-    oc get csv -n "${OPERATORNAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log
-    oc adm inspect  ns/"${OPERATORNAMESPACE}"  --dest-dir=must-gather
+    oc get pods -n "${DEPLOYMENTNAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log
+    oc get csv -n "${DEPLOYMENTNAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log
+    oc adm inspect  ns/"${DEPLOYMENTNAMESPACE}"  --dest-dir=must-gather
     oc adm inspect  ns/open-cluster-management-hub  --dest-dir=must-gather
     # request from https://bugzilla.redhat.com/show_bug.cgi?id=1853485
     oc get proxy -o yaml > ${BASE_COLLECTION_PATH}/gather-proxy.log

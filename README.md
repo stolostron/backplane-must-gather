@@ -4,13 +4,13 @@ The must gather script for Open Cluster Management allows a user to collect info
 ## Usage
 
 ```sh
-oc adm must-gather --image=quay.io/open-cluster-management/must-gather:0.1.0-SNAPSHOT-2020-06-....
+oc adm must-gather --image=quay.io/open-cluster-management/backplane-must-gather:0.1.0-SNAPSHOT-2020-06-....
 ```
 
 If you need the results to be saved in a named directory, then following the must-gather instructions, this can be run. Also added are commands to create a gzipped tarball:
 
 ```sh
-oc adm must-gather --image=quay.io/open-cluster-management/must-gather:0.1.0-SNAPSHOT-2020-06-.... --dest-dir=SOMENAME ; tar -cvzf SOMENAME.tgz SOMENAME
+oc adm must-gather --image=quay.io/open-cluster-management/backplane-must-gather:0.1.0-SNAPSHOT-2020-06-.... --dest-dir=SOMENAME ; tar -cvzf SOMENAME.tgz SOMENAME
 ```
 
 In addition, if we need to collect must-gather for the OpenShift infrastructure, we can run:
@@ -19,7 +19,7 @@ oc adm must-gather
 ```
 
 ## Information Captured
-1. The above must-gather command can understand where it is being run - Open Cluster Mangement Hub Server or Managed Cluster and collects data accordingly.
+1. The above must-gather command can understand where it is being run - Backplane Operator location or Managed Cluster and collects data accordingly.
 2. If run on the Open Cluster Management Hub Server, it will also capture a list of Managed Clusters configured and the status. This is found in the `gather-managed.log` If a Managed Cluster reports a status of not equal to Ready when it is expected to be, then the must-gather command above should be run on the Managed Cluster as well.
 
 ### Data collected
