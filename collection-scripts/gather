@@ -20,6 +20,7 @@ check_managed_clusters() {
     #to capture details in the managed cluster namespace to debug hive issues
     #refer https://github.com/open-cluster-management/backlog/issues/2682
     MCNAMESPACE=`oc get managedclusters --all-namespaces --no-headers=true -o custom-columns="NAMESPACE:.metadata.name"`
+    
     for mcns in ${MCNAMESPACE[@]};
     do
         #oc kubectl get pods -n "$mcns" >> ${BASE_COLLECTION_PATH}/gather-managed.log
@@ -31,11 +32,10 @@ check_managed_clusters() {
 check_if_hub () {
     MCE_NAME=`oc get multiclusterengines.multicluster.openshift.io --all-namespaces --no-headers=true | awk '{ print $1 }'`
     echo "$MCE_NAME"
-     #if [[ "$NAMESPACE" != error* ]];
-     #   then CLUSTER="HUB"
-     #fi  
      if [[ -z "$MCE_NAME" ]] ;
-        then CLUSTER="SPOKE"
+        then 
+        echo "If the cluster is a managed cluster, the above error can be safely ignored"
+        CLUSTER="SPOKE"
      else  
         CLUSTER="HUB"
         OPERATORNAMESPACE="`oc get pod -l control-plane=backplane-operator --all-namespaces --no-headers=true | head -n 1 | awk '{ print $1 }'`"
@@ -45,30 +45,13 @@ check_if_hub () {
 
 gather_spoke () {
 
-    oc adm inspect subscriptions.apps.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
-    oc adm inspect helmreleases.apps.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
 
     oc adm inspect klusterlets.operator.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
     oc adm inspect clusterclaims.cluster.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
     oc adm inspect ns/open-cluster-management-agent --dest-dir=must-gather
     oc adm inspect ns/open-cluster-management-agent-addon --dest-dir=must-gather
-    #oc adm inspect endpoints.multicloud.ibm.com --all-namespaces  --dest-dir=must-gather
-    oc adm inspect workmanagers.agent.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
-    oc adm inspect applicationmanagers.agent.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
-    oc adm inspect certpolicycontrollers.agent.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
-    oc adm inspect iampolicycontrollers.agent.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
-    oc adm inspect policycontrollers.agent.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
-    oc adm inspect searchcollectors.agent.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
-    
-    oc adm inspect policies.policy.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
-    oc adm inspect certificatepolicies.policy.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
-    oc adm inspect iampolicies.policy.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
-    oc adm inspect cispolicies.policy.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
-    
 
-    oc adm inspect ns/openshift-gatekeeper-system --dest-dir=must-gather
     oc adm inspect ns/openshift-operators --dest-dir=must-gather # gatekeeper operator will be installed in this ns in production
-    oc adm inspect ns/openshift-gatekeeper-operator --dest-dir=must-gather
 }
 
 check_if_hub
