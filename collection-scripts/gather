@@ -20,6 +20,7 @@ check_managed_clusters() {
     #to capture details in the managed cluster namespace to debug hive issues
     #refer https://github.com/open-cluster-management/backlog/issues/2682
     MCNAMESPACE=`oc get managedclusters --all-namespaces --no-headers=true -o custom-columns="NAMESPACE:.metadata.name"`
+    
     for mcns in ${MCNAMESPACE[@]};
     do
         #oc kubectl get pods -n "$mcns" >> ${BASE_COLLECTION_PATH}/gather-managed.log
@@ -31,11 +32,10 @@ check_managed_clusters() {
 check_if_hub () {
     MCE_NAME=`oc get multiclusterengines.multicluster.openshift.io --all-namespaces --no-headers=true | awk '{ print $1 }'`
     echo "$MCE_NAME"
-     #if [[ "$NAMESPACE" != error* ]];
-     #   then CLUSTER="HUB"
-     #fi  
      if [[ -z "$MCE_NAME" ]] ;
-        then CLUSTER="SPOKE"
+        then 
+        echo "If the cluster is a managed cluster, the above error can be safely ignored"
+        CLUSTER="SPOKE"
      else  
         CLUSTER="HUB"
         OPERATORNAMESPACE="`oc get pod -l control-plane=backplane-operator --all-namespaces --no-headers=true | head -n 1 | awk '{ print $1 }'`"
