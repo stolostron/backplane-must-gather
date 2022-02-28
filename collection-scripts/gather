@@ -97,6 +97,7 @@ case "$CLUSTER" in
     oc adm inspect  managedclusters.cluster.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
     oc adm inspect  managedclusterinfos.internal.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
     oc adm inspect  clustermanagers.operator.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
+    oc adm inspect  managedserviceaccounts.authentication.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
 
 
     oc adm inspect validatingwebhookconfigurations.admissionregistration.k8s.io --all-namespaces --dest-dir=must-gather
