@@ -16,11 +16,11 @@ check_managed_clusters() {
     echo "The list of managed clusters that are configured on this Hub:" >> ${BASE_COLLECTION_PATH}/gather-managed.log
     #These calls will change with new API
     oc get managedclusters --all-namespaces >> ${BASE_COLLECTION_PATH}/gather-managed.log
-    
+
     #to capture details in the managed cluster namespace to debug hive issues
     #refer https://github.com/open-cluster-management/backlog/issues/2682
     MCNAMESPACE=`oc get managedclusters --all-namespaces --no-headers=true -o custom-columns="NAMESPACE:.metadata.name"`
-    
+
     for mcns in ${MCNAMESPACE[@]};
     do
         #oc kubectl get pods -n "$mcns" >> ${BASE_COLLECTION_PATH}/gather-managed.log
@@ -33,14 +33,14 @@ check_if_hub () {
     MCE_NAME=`oc get multiclusterengines.multicluster.openshift.io --all-namespaces --no-headers=true | awk '{ print $1 }'`
     echo "$MCE_NAME"
      if [[ -z "$MCE_NAME" ]] ;
-        then 
+        then
         echo "If the cluster is a managed cluster, the above error can be safely ignored"
         CLUSTER="SPOKE"
-     else  
+     else
         CLUSTER="HUB"
         OPERATORNAMESPACE="`oc get pod -l control-plane=backplane-operator --all-namespaces --no-headers=true | head -n 1 | awk '{ print $1 }'`"
         DEPLOYMENTNAMESPACE="`oc get mce $MCE_NAME -o jsonpath='{.spec.targetNamespace}'`"
-     fi 
+     fi
 }
 
 gather_spoke () {
@@ -58,8 +58,8 @@ check_if_hub
 
 echo "$CLUSTER"
 
-case "$CLUSTER" in 
-    #case 1 
+case "$CLUSTER" in
+    #case 1
     "HUB")
 
     check_managed_clusters
@@ -74,13 +74,12 @@ case "$CLUSTER" in
     oc adm inspect  ns/hive  --dest-dir=must-gather
     oc adm inspect  multiclusterengines.multicluster.openshift.io --all-namespaces  --dest-dir=must-gather
     oc adm inspect hiveconfigs.hive.openshift.io --all-namespaces  --dest-dir=must-gather
-    
+
     oc adm inspect clusterserviceversions.operators.coreos.com --all-namespaces  --dest-dir=must-gather
     oc adm inspect subscriptions.operators.coreos.com      --all-namespaces  --dest-dir=must-gather
     oc adm inspect installplans.operators.coreos.com --all-namespaces  --dest-dir=must-gather
     oc adm inspect operatorgroups.operators.coreos.com --all-namespaces  --dest-dir=must-gather
 
-    oc adm inspect baremetalassets.inventory.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
     oc adm inspect baremetalhosts.metal3.io --all-namespaces  --dest-dir=must-gather
 
     oc adm inspect placementdecisions.cluster.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
@@ -105,7 +104,7 @@ case "$CLUSTER" in
 
     oc adm inspect  discoveredclusters.discovery.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
     oc adm inspect  discoveryconfigs.discovery.open-cluster-management.io --all-namespaces  --dest-dir=must-gather
-    
+
     oc adm inspect managedclusteraddons.addon.open-cluster-management.io  --all-namespaces  --dest-dir=must-gather
 
     oc adm inspect ns/openshift-monitoring  --dest-dir=must-gather
@@ -114,14 +113,14 @@ case "$CLUSTER" in
     oc adm inspect consoles.operator.openshift.io --dest-dir=must-gather
     ;;
 
-      
-    #case 2 
+
+    #case 2
     "SPOKE")
     gather_spoke
-    ;; 
-      
-   
-esac 
+    ;;
+
+
+esac
 
 
 
