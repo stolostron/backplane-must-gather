@@ -16,7 +16,7 @@ DEPLOYMENT_NAMESPACE=""
 check_managed_clusters() {
     echo "The list of managed clusters that are configured on this Hub:" >> ${BASE_COLLECTION_PATH}/gather-managed.log
     #These calls will change with new API
-    oc get managedclusters --all-namespaces >> ${BASE_COLLECTION_PATH}/gather-managed.log
+    oc get managedclusters --all-namespaces >> ${BASE_COLLECTION_PATH}/gather-managed-mce.log
 
     #to capture details in the managed cluster namespace to debug hive issues
     #refer https://github.com/open-cluster-management/backlog/issues/2682
@@ -80,14 +80,14 @@ gather_spoke () {
 
 gather_hub() {
     check_managed_clusters
-    oc get pods -n "${OPERATOR_NAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log
-    oc get pods -n "${DEPLOYMENT_NAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log
-    oc get csv -n "${OPERATOR_NAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-acm.log
+    oc get pods -n "${OPERATOR_NAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-mce.log
+    oc get pods -n "${DEPLOYMENT_NAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-mce.log
+    oc get csv -n "${OPERATOR_NAMESPACE}" > ${BASE_COLLECTION_PATH}/gather-mce.log
     oc adm inspect  ns/"${DEPLOYMENT_NAMESPACE}"  --dest-dir=must-gather
     oc adm inspect  ns/"${OPERATOR_NAMESPACE}"  --dest-dir=must-gather
     oc adm inspect  ns/open-cluster-management-hub  --dest-dir=must-gather
     # request from https://bugzilla.redhat.com/show_bug.cgi?id=1853485
-    oc get proxy -o yaml > ${BASE_COLLECTION_PATH}/gather-proxy.log
+    oc get proxy -o yaml > ${BASE_COLLECTION_PATH}/gather-proxy-mce.log
     oc adm inspect  ns/hive  --dest-dir=must-gather
     oc adm inspect  multiclusterengines.multicluster.openshift.io --all-namespaces  --dest-dir=must-gather
     oc adm inspect hiveconfigs.hive.openshift.io --all-namespaces  --dest-dir=must-gather
