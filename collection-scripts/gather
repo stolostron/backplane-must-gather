@@ -3,7 +3,7 @@
 # Copyright (c) 2021 Red Hat, Inc.
 # Copyright Contributors to the Open Cluster Management project
 
-echo "Runing MCE Must-Gather"
+echo -e "Running MultiClusterEngine (MCE) Must-Gather\n"
 source mce-gather.sh
 
 exit 0
