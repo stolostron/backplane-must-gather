@@ -164,7 +164,12 @@ gather_hub() {
     oc adm inspect discoveredclusters.discovery.open-cluster-management.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
     oc adm inspect discoveryconfigs.discovery.open-cluster-management.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
 
+    oc adm inspect clustermanagementaddons.addon.open-cluster-management.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
     oc adm inspect managedclusteraddons.addon.open-cluster-management.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+    oc adm inspect addondeploymentconfigs.addon.open-cluster-management.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+    oc adm inspect addontemplates.addon.open-cluster-management.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+
+    oc adm inspect klusterletconfigs.config.open-cluster-management.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
 
     oc adm inspect ns/openshift-monitoring --dest-dir=$BASE_COLLECTION_PATH
 
