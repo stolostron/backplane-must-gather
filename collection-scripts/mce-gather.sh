@@ -59,12 +59,12 @@ check_if_hub () {
 }
 
 check_if_spoke () {
-    if oc get crd clusterclaims.cluster.open-cluster-management.io;
+    if oc get crd klusterlets.operator.open-cluster-management.io;
     then
-      echo -e "The current cluster has clusterclaims.cluster.open-cluster-management.io crd, it is a spoke cluster.\n"
+      echo -e "The current cluster has klusterlets.operator.open-cluster-management.io crd, it is a spoke cluster.\n"
       SPOKE_CLUSTER=true
     else
-      echo -e "The current cluster does not have clusterclaims.cluster.open-cluster-management.io crd, it is not a spoke cluster.\n"
+      echo -e "The current cluster does not have klusterlets.operator.open-cluster-management.io crd, it is not a spoke cluster.\n"
     fi
 }
 
