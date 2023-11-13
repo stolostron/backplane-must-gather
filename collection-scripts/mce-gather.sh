@@ -222,6 +222,30 @@ gather_all_hostedclusters() {
   fi
 }
 
+gather_service_and_event_logs_for_failed_agents() {
+    GATHER_DIR="$1"
+    find ${GATHER_DIR} -path '*/agentclusterinstalls/*.yaml' -type f | while read file; do
+        dir=$(dirname $file)
+        base=$(basename -s .yaml $file)
+
+        # yq eval '.status.conditions[] | select(.type == "Failed") | .status'  must-gather/namespaces/local-cluster/extensions.hive.openshift.io/agentclusterinstalls/local-cluster-cluster-install.yaml
+        failed=$(yq eval '.status.conditions[] | select(.type == "Failed") | .status' $file)
+        if [ "$failed" = "False" ]; then
+                echo "skipping logs and events for non-failed cluster $file"
+                continue
+        fi
+
+        logsURL=$(yq eval '.status.debugInfo.logsURL' $file)
+        if [ -n ${logsURL} ]; then
+                curl -k -o $dir/$base.logs.tar "${logsURL}"
+        fi
+        eventsURL=$(yq eval '.status.debugInfo.eventsURL' $file)
+        if [ -n ${eventsURL} ]; then
+                curl -k -o $dir/$base.events "${eventsURL}"
+        fi
+    done
+  }
+
 gather_hub() {
     check_managed_clusters
 
@@ -323,6 +347,9 @@ gather_hub() {
 
     # OpenShift console plug-in enablement
     oc adm inspect consoles.operator.openshift.io --dest-dir=$BASE_COLLECTION_PATH
+
+    # Gather any service or event logs for failed agents
+    gather_service_and_event_logs_for_failed_agents $BASE_COLLECTION_PATH
 
     # Capture metal3 logs if the customer has at least one baremetalhost cr which indicates that bmc is being used to create new clusters
     if oc get baremetalhosts.metal3.io --all-namespaces &> /dev/null; then
