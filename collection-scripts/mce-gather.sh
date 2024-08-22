@@ -334,6 +334,9 @@ gather_hub() {
   oc adm inspect infraenv.agent-install.openshift.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect nmstateconfig.agent-install.openshift.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
 
+  # Image Based Install Operator CRs
+  oc adm inspect imageclusterinstall.extensions.hive.openshift.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+
   # OpenShift console plug-in enablement
   oc adm inspect consoles.operator.openshift.io --dest-dir=$BASE_COLLECTION_PATH
 
