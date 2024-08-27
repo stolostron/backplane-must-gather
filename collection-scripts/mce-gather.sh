@@ -274,6 +274,7 @@ gather_hub() {
   oc get proxy -o yaml >${BASE_COLLECTION_PATH}/gather-proxy-mce.log
   oc adm inspect ns/hive --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect multiclusterengines.multicluster.openshift.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect internalenginecomponents.multicluster.openshift.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect hiveconfigs.hive.openshift.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
 
   oc adm inspect clusterserviceversions.operators.coreos.com --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
