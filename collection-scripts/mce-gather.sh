@@ -322,6 +322,7 @@ gather_hub() {
   oc adm inspect klusterletconfigs.config.open-cluster-management.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
 
   oc adm inspect ns/openshift-monitoring --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect imagecontentsourcepolicies.operator.openshift.io --dest-dir=$BASE_COLLECTION_PATH
 
   # Topology Aware Lifecycle Manager CRs
   oc adm inspect ns/openshift-operators --dest-dir=$BASE_COLLECTION_PATH
@@ -338,6 +339,12 @@ gather_hub() {
 
   # Image Based Install Operator CRs
   oc adm inspect imageclusterinstall.extensions.hive.openshift.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+
+  # Cluster API (CAPI) CRs
+  oc adm inspect clusters.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect machinepools.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect rosacontrolplanes.controlplane.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect rosamachinepools.infrastructure.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
 
   # OpenShift console plug-in enablement
   oc adm inspect consoles.operator.openshift.io --dest-dir=$BASE_COLLECTION_PATH
