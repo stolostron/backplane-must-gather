@@ -278,10 +278,12 @@ gather_hub() {
   oc adm inspect internalenginecomponents.multicluster.openshift.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect hiveconfigs.hive.openshift.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
 
+  oc adm inspect catalogsources.operators.coreos.com --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect clusterserviceversions.operators.coreos.com --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect subscriptions.operators.coreos.com --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect installplans.operators.coreos.com --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect operatorgroups.operators.coreos.com --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect clusterversions.config.openshift.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
 
   oc adm inspect baremetalhosts.metal3.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect preprovisioningimages.metal3.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
