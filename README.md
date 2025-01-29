@@ -21,7 +21,7 @@ oc adm must-gather --image=quay.io/stolostron/backplane-must-gather:SNAPSHOTNAME
 
 In addition, if we need to collect must-gather for the OpenShift infrastructure, we can run:
 
-```
+```sh
 oc adm must-gather
 ```
 
@@ -81,7 +81,7 @@ Data from the hosting MCE cluster:
 
 - **Cluster scoped resources**: Nodes definitions of the management cluster.
 - **Namespaced resources**: This includes all the objects from all the relevant namespaces, like configmaps, services,
-  events, logs, etc...
+   events, logs, etc...
 - **Network logs**: Includes the OVN northbound and southbound DBs and the statuses for each one.
 - **HostedClusters**: Another level of dump, involves all the resources inside of the guest cluster.
 
@@ -89,11 +89,10 @@ Data from the hosted cluster:
 
 - **Cluster scoped resources**: It contains al the cluster-wide objects, things like nodes, CRDs, etc...
 - **Namespaced resources**: This includes all the objects from all the relevant namespaces, like configmaps, services,
-  events, logs, etc...
-
+   events, logs, etc...
 - **hypershift-dump.tar.gz**: A compressed file of all data collected from both hosting and hosted clusters.
 
 **Note:** The hosted cluster data collection does not contain any secret resources from the cluster, only references to
 the secret's names.
 
-Rebuild Image: Tue Jan 28 14:56:22 EST 2025
+Rebuild Image: Wed Jan 29 10:26:27 EST 2025
