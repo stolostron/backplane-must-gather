@@ -20,3 +20,11 @@ COPY --from=builder /usr/bin/yq /usr/bin/yq
 COPY collection-scripts/* /usr/bin/
 
 ENTRYPOINT /usr/bin/gather
+
+LABEL name="multicluster-engine/must-gather-rhel9"
+LABEL summary="Must-gather scripts for Red Hat multicluster engine for Kubernetes"
+LABEL description="Must-gather scripts for Red Hat multicluster engine for Kubernetes"
+LABEL io.k8s.display-name="MCE Must-gather"
+LABEL io.k8s.description="Must-gather scripts for Red Hat multicluster engine for Kubernetes"
+LABEL com.redhat.component="backplnae-must-gather-container"
+LABEL io.openshift.tags="data,images"

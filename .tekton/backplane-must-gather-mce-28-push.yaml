@@ -26,9 +26,13 @@ spec:
       value:
         - linux/x86_64
     - name: dockerfile
-      value: Dockerfile.rhtap
+      value: build/Dockerfile.rhtap
     - name: path-context
       value: .
+    - name: build-source-image
+      value: "true"
+    - name: prefetch-input
+      value: '[{"type": "rpm", "path": "build"}]'
     - name: hermetic
       value: "true"
   pipelineSpec:
@@ -151,6 +155,8 @@ spec:
             value: $(params.output-image).git
           - name: ociArtifactExpiresAfter
             value: $(params.image-expires-after)
+          - name: dev-package-managers
+            value: "true"
         runAfter:
           - init
         taskRef:
