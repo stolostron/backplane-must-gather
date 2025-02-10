@@ -1,0 +1,16 @@
+contentOrigin:
+  repofiles:
+    - /etc/yum.repos.d/ubi.repo
+packages:
+  - jq
+  - tar
+  - gzip
+  - rsync
+  - findutils
+context:
+  containerfile: Dockerfile.rhtap
+arches:
+  - aarch64
+  - x86_64
+  - s390x
+  - ppc64le
