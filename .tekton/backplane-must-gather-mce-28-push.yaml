@@ -155,8 +155,6 @@ spec:
             value: $(params.output-image).git
           - name: ociArtifactExpiresAfter
             value: $(params.image-expires-after)
-          - name: dev-package-managers
-            value: "true"
         runAfter:
           - init
         taskRef:
@@ -186,6 +184,8 @@ spec:
             value: $(params.output-image).prefetch
           - name: ociArtifactExpiresAfter
             value: $(params.image-expires-after)
+          - name: dev-package-managers
+            value: "true"
         runAfter:
           - clone-repository
         taskRef:
