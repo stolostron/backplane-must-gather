@@ -31,5 +31,5 @@ LABEL summary="Must-gather scripts for Red Hat multicluster engine for Kubernete
 LABEL description="Must-gather scripts for Red Hat multicluster engine for Kubernetes"
 LABEL io.k8s.display-name="MCE Must-gather"
 LABEL io.k8s.description="Must-gather scripts for Red Hat multicluster engine for Kubernetes"
-LABEL com.redhat.component="backplnae-must-gather-container"
+LABEL com.redhat.component="backplane-must-gather-container"
 LABEL io.openshift.tags="data,images"
