@@ -68,20 +68,23 @@ check_if_spoke() {
   fi
 }
 
-check_if_hypershift() {
+# parse_args parses the arguments passed to the must-gather in the form of <key>=<value>.
+# NOTE: Currently this only applies to the Hypershift must-gather.
+parse_args() {
   # get the hosted cluster name and optionally namespace
-  while [ "$1" != "" ]; do
-    FLAG=$(echo "$1" | awk -F= '{print $1}')
-    VALUE=$(echo "$1" | awk -F= '{print $2}')
-    case $FLAG in
-    hosted-cluster-name)
-      HC_NAME=$VALUE
+  while [ "${1}" != "" ]; do
+    local key value
+    key=${1%=*}
+    value=${1#*=}
+    case ${key} in
+    hosted-cluster-name) # Get the hosted cluster name
+      export HC_NAME=${value}
       ;;
-    hosted-cluster-namespace)
-      HC_NAMESPACE=$VALUE
+    hosted-cluster-namespace) # Get the hosted cluster namespace
+      export HC_NAMESPACE=${value}
       ;;
     *)
-      echo "ERROR: unknown parameter \"$FLAG\""
+      echo "ERROR unknown parameter \"${key}\""
       exit 1
       ;;
     esac
@@ -119,6 +122,27 @@ gather_spoke() {
   oc adm inspect ns/openshift-operators --dest-dir=$BASE_COLLECTION_PATH # gatekeeper operator will be installed in this ns in production
 }
 
+ensure_hypershift_cli() {
+  # First, check if the container image already contains the /usr/bin/hypershift
+  if [ -f /usr/bin/hypershift ]; then
+    echo "Using hypershift binary at /usr/bin/hypershift."
+    export HYPERSHIFT="/usr/bin/hypershift"
+    return 0
+  fi
+
+  echo "/usr/bin/hypershift is not found. Trying to extract it from the hypershift operator."
+
+  # Now, try to extract the hypershift CLI from the hypershift operator
+  if extract_hypershift_cli; then
+    echo "Successfully extracted the hypershift CLI binary to /tmp/hypershift."
+    export HYPERSHIFT="/tmp/hypershift"
+    return 0
+  fi
+
+  echo "Extracting the hypershift binary from the hypershift operator failed."
+  return 1
+}
+
 extract_hypershift_cli() {
   if ! oc get namespace hypershift; then
     echo "hypershift namespace not found"
@@ -126,18 +150,17 @@ extract_hypershift_cli() {
   fi
 
   # Get a running hypershift operator pod
-  oc project hypershift
-  HO_POD_NAME=$(oc get pod --no-headers=true --field-selector=status.phase=Running -l app=operator -o custom-columns="NAME:.metadata.name" | head -n 1)
+  HO_POD_NAME=$(oc get pod -n hypershift --no-headers=true --field-selector=status.phase=Running -l app=operator -o name | head -n 1)
 
   if [[ -n $HO_POD_NAME ]]; then
     echo "Found a running hypershift operator pod: \"$HO_POD_NAME\""
   else
-    echo "No running hypershift operator pod found."
+    echo "WARN No running hypershift operator pod found."
     return 1
   fi
 
   # Extract the hypershift CLI from the hypershift operator pod
-  oc rsync ${HO_POD_NAME}:/usr/bin/hypershift /tmp
+  oc rsync -c operator -n hypershift ${HO_POD_NAME}:/usr/bin/hypershift /tmp
   chmod 755 /tmp/hypershift
   return 0
 }
@@ -154,60 +177,19 @@ dump_hostedcluster() {
     return 1
   fi
 
-  if ! extract_hypershift_cli; then
+  # This could be the second time to be here if both MCE and spoke gathers are run.
+  if [ -f $BASE_COLLECTION_PATH/hypershift-dump.tar.gz ]; then
+    echo "Must-gather for hosted cluster \"$HC_NAME\" in namespace \"$HC_NAMESPACE\" has already been collected."
+    return 0
+  fi
+
+  if ! ensure_hypershift_cli; then
     echo "Failed to extract the hypershift CLI binary."
     return 1
   fi
 
   echo "Collecting must-gather for hosted cluster \"$HC_NAME\" in namespace \"$HC_NAMESPACE\""
-  /tmp/hypershift dump cluster --dump-guest-cluster --artifact-dir $BASE_COLLECTION_PATH --name $HC_NAME --namespace $HC_NAMESPACE
-}
-
-# shellcheck disable=SC2317
-# - This code is not called since it is not supported yet
-gather_all_hostedclusters() {
-  oc adm inspect pod -n open-cluster-management-agent-addon --dest-dir=$BASE_COLLECTION_PATH
-  oc adm inspect pod -n hypershift --dest-dir=$BASE_COLLECTION_PATH
-
-  if ! oc get namespace hypershift; then
-    echo "hypershift namespace not found"
-    return
-  fi
-
-  HC_NAMESPACES=$(oc get hostedcluster --all-namespaces --no-headers=true -o custom-columns=NAMESPACE:.metadata.namespace | sort -u)
-
-  if [[ -n $HC_NAMESPACES ]]; then
-    # Get a running hypershift operator pod
-    oc project hypershift
-    HO_POD_NAME=$(oc get pod --no-headers=true --field-selector=status.phase=Running -l app=operator -o custom-columns="NAME:.metadata.name" | head -n 1)
-
-    if [[ -n $HO_POD_NAME ]]; then
-      echo "Found a running hypershift operator pod: \"$HO_POD_NAME\""
-    else
-      echo "No running hypershift operator pod found."
-      return
-    fi
-
-    # Extract the hypershift CLI from the hypershift operator pod
-    oc rsync ${HO_POD_NAME}:/usr/bin/hypershift /tmp
-    chmod 755 /tmp/hypershift
-
-    for hc_namespace in ${HC_NAMESPACES}; do
-      HC_LIST=$(oc get hostedcluster -n $hc_namespace --no-headers=true -o custom-columns="NAME:.metadata.name")
-      if [[ -n $HC_LIST ]]; then
-        for hc in ${HC_LIST}; do
-          echo "Collecting must-gather for hosted cluster $hc"
-          /tmp/hypershift dump cluster --dump-guest-cluster --artifact-dir $BASE_COLLECTION_PATH --name $hc --namespace $hc_namespace
-        done
-      else
-        echo "No hosted cluster found in $hc_namespace namespace."
-        return
-      fi
-    done
-  else
-    echo "No hosted cluster found."
-    return
-  fi
+  ${HYPERSHIFT} dump cluster --dump-guest-cluster --artifact-dir $BASE_COLLECTION_PATH --name $HC_NAME --namespace $HC_NAMESPACE
 }
 
 gather_service_and_event_logs_for_failed_agents() {
@@ -362,7 +344,7 @@ gather_hub() {
 
 check_if_hub
 check_if_spoke
-check_if_hypershift "$@"
+parse_args "$@"
 
 if $HUB_CLUSTER; then
   echo "Start to gather information for hub"
