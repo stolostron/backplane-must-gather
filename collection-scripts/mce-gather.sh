@@ -205,7 +205,7 @@ gather_service_and_event_logs_for_failed_agents() {
 
     failed=$(echo "${install_json}" | jq -r '.status.conditions[] | select(.type == "Failed") | .status')
     if [ "$failed" = "False" ]; then
-      log "skipping logs and events for non-failed cluster ${install_name}"
+      echo "skipping logs and events for non-failed cluster ${install_name}"
       continue
     fi
 
