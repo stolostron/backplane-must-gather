@@ -330,9 +330,28 @@ gather_hub() {
 
   # Cluster API (CAPI) CRs
   oc adm inspect clusters.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect clusterclasses.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect machinedeployments.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect machines.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect machinepools.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect rosacontrolplanes.controlplane.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect rosamachinepools.infrastructure.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+
+  # CAPM3 CRs
+  oc adm inspect metal3clusters.infrastructure.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect metal3clustertemplates.infrastructure.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect metal3dataclaims.infrastructure.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect metal3datas.infrastructure.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect metal3datatemplates.infrastructure.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect metal3machines.infrastructure.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect metal3machinetemplates.infrastructure.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect metal3remediations.infrastructure.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect metal3remediationtemplates.infrastructure.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+
+  # CAPOA CRs
+  oc adm inspect openshiftassistedconfigs.bootstrap.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect openshiftassistedconfigtemplates.bootstrap.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect openshiftassistedcontrolplanes.controlplane.cluster.x-k8s.io --all-namespaces --dest-dir=$BASE_COLLECTION_PATH
 
   # OpenShift console plug-in enablement
   oc adm inspect consoles.operator.openshift.io --dest-dir=$BASE_COLLECTION_PATH
