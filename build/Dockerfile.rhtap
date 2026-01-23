@@ -26,10 +26,11 @@ USER 1001
 
 ENTRYPOINT /usr/bin/gather
 
-LABEL name="multicluster-engine/must-gather-rhel9"
-LABEL summary="Must-gather scripts for Red Hat multicluster engine for Kubernetes"
-LABEL description="Must-gather scripts for Red Hat multicluster engine for Kubernetes"
-LABEL io.k8s.display-name="MCE Must-gather"
-LABEL io.k8s.description="Must-gather scripts for Red Hat multicluster engine for Kubernetes"
-LABEL com.redhat.component="backplane-must-gather-container"
-LABEL io.openshift.tags="data,images"
+LABEL name="multicluster-engine/must-gather-rhel9" \
+      summary="Must-gather scripts for Red Hat multicluster engine for Kubernetes" \
+      description="Must-gather scripts for Red Hat multicluster engine for Kubernetes" \
+      io.k8s.display-name="MCE Must-gather" \
+      io.k8s.description="Must-gather scripts for Red Hat multicluster engine for Kubernetes" \
+      com.redhat.component="backplane-must-gather-container" \
+      io.openshift.tags="data,images" \
+      cpe="cpe:/a:redhat:multicluster_engine:2.7::el9"
