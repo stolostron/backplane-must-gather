@@ -33,4 +33,4 @@ LABEL name="multicluster-engine/must-gather-rhel9" \
       io.k8s.description="Must-gather scripts for Red Hat multicluster engine for Kubernetes" \
       com.redhat.component="backplane-must-gather-container" \
       io.openshift.tags="data,images" \
-      cpe="cpe:/a:redhat:multicluster_engine:2.11::el9"
+      cpe="cpe:/a:redhat:multicluster_engine:2.17::el9"
