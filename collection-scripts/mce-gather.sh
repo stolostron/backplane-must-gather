@@ -355,6 +355,7 @@ gather_hub() {
 
   # OpenShift console plug-in enablement
   oc adm inspect consoles.operator.openshift.io --dest-dir=$BASE_COLLECTION_PATH
+  oc adm inspect consoleplugins.console.openshift.io --dest-dir=$BASE_COLLECTION_PATH
 
   # Gather any service or event logs for failed agents
   gather_service_and_event_logs_for_failed_agents $BASE_COLLECTION_PATH
