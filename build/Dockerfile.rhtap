@@ -3,7 +3,7 @@
 
 FROM registry.redhat.io/openshift4/ose-cli-rhel9:v4.22 as builder
 
-FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+FROM registry.redhat.io/ubi9/ubi-minimal-pqc:latest
 
 ENV BASE_COLLECTION_PATH=/must-gather \
     USER_UID=1001 \
