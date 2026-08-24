@@ -1,7 +1,13 @@
 # Copyright (c) 2021 Red Hat, Inc.
 # Copyright Contributors to the Open Cluster Management project
 
-FROM registry.redhat.io/openshift4/ose-cli-rhel9:v4.22 as builder
+FROM registry.redhat.io/openshift4/ose-cli-rhel9:v4.22 AS oc-cli
+
+FROM registry.access.redhat.com/ubi9/go-toolset:latest AS hypershift-cli
+
+WORKDIR /hypershift
+COPY --chown=default external/hypershift .
+RUN make hypershift
 
 FROM registry.redhat.io/ubi9/ubi-minimal-pqc:latest
 
@@ -14,7 +20,8 @@ RUN microdnf update -y \
     && microdnf clean all
 
 # Copy binaries
-COPY --from=builder /usr/bin/oc /usr/bin/oc
+COPY --from=oc-cli /usr/bin/oc /usr/bin/oc
+COPY --from=hypershift-cli /hypershift/bin/hypershift /usr/bin/hypershift
 
 # copy all collection scripts to /usr/bin
 COPY collection-scripts/* /usr/bin/

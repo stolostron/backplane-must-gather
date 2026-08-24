@@ -122,49 +122,6 @@ gather_spoke() {
   oc adm inspect ns/openshift-operators --dest-dir=$BASE_COLLECTION_PATH # gatekeeper operator will be installed in this ns in production
 }
 
-ensure_hypershift_cli() {
-  # First, check if the container image already contains the /usr/bin/hypershift
-  if [ -f /usr/bin/hypershift ]; then
-    echo "Using hypershift binary at /usr/bin/hypershift."
-    export HYPERSHIFT="/usr/bin/hypershift"
-    return 0
-  fi
-
-  echo "/usr/bin/hypershift is not found. Trying to extract it from the hypershift operator."
-
-  # Now, try to extract the hypershift CLI from the hypershift operator
-  if extract_hypershift_cli; then
-    echo "Successfully extracted the hypershift CLI binary to /tmp/hypershift."
-    export HYPERSHIFT="/tmp/hypershift"
-    return 0
-  fi
-
-  echo "Extracting the hypershift binary from the hypershift operator failed."
-  return 1
-}
-
-extract_hypershift_cli() {
-  if ! oc get namespace hypershift; then
-    echo "hypershift namespace not found"
-    return 1
-  fi
-
-  # Get a running hypershift operator pod
-  HO_POD_NAME=$(oc get pod -n hypershift --no-headers=true --field-selector=status.phase=Running -l app=operator -o name | head -n 1)
-
-  if [[ -n $HO_POD_NAME ]]; then
-    echo "Found a running hypershift operator pod: \"$HO_POD_NAME\""
-  else
-    echo "WARN No running hypershift operator pod found."
-    return 1
-  fi
-
-  # Extract the hypershift CLI from the hypershift operator pod
-  oc rsync -c operator -n hypershift ${HO_POD_NAME}:/usr/bin/hypershift /tmp
-  chmod 755 /tmp/hypershift
-  return 0
-}
-
 dump_hostedcluster() {
   if [[ -z $HC_NAME ]]; then
     echo "Hosted cluster name was not provided. Skip collecting hosted cluster must-gather."
@@ -183,13 +140,13 @@ dump_hostedcluster() {
     return 0
   fi
 
-  if ! ensure_hypershift_cli; then
-    echo "Failed to extract the hypershift CLI binary."
+  if [ ! -x /usr/bin/hypershift ]; then
+    echo "ERROR: hypershift CLI not found at /usr/bin/hypershift."
     return 1
   fi
 
   echo "Collecting must-gather for hosted cluster \"$HC_NAME\" in namespace \"$HC_NAMESPACE\""
-  ${HYPERSHIFT} dump cluster --dump-guest-cluster --artifact-dir $BASE_COLLECTION_PATH --name $HC_NAME --namespace $HC_NAMESPACE
+  /usr/bin/hypershift dump cluster --dump-guest-cluster --artifact-dir $BASE_COLLECTION_PATH --name $HC_NAME --namespace $HC_NAMESPACE
 }
 
 gather_service_and_event_logs_for_failed_agents() {
