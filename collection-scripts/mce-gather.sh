@@ -146,7 +146,14 @@ dump_hostedcluster() {
   fi
 
   echo "Collecting must-gather for hosted cluster \"$HC_NAME\" in namespace \"$HC_NAMESPACE\""
-  /usr/bin/hypershift dump cluster --dump-guest-cluster --artifact-dir $BASE_COLLECTION_PATH --name $HC_NAME --namespace $HC_NAMESPACE
+  hypershift_cmd=(/usr/bin/hypershift dump cluster --artifact-dir "${BASE_COLLECTION_PATH}" --name "${HC_NAME}" --namespace "${HC_NAMESPACE}")
+  if ! "${hypershift_cmd[@]}" --dump-guest-cluster=fail-on-error; then
+    log "WARN" "Failed to collect must-gather for hosted cluster '${HC_NAME}' in namespace '${HC_NAMESPACE}' using --dump-guest-cluster. Trying --dump-guest-cluster=fail-on-error,direct-kube-api-service-access."
+    if ! "${hypershift_cmd[@]}" --dump-guest-cluster=fail-on-error,direct-kube-api-service-access; then
+      log "ERROR" "Failed to collect must-gather for hosted cluster '${HC_NAME}' in namespace '${HC_NAMESPACE}' using --dump-guest-cluster=fail-on-error,direct-kube-api-service-access."
+      return 1
+    fi
+  fi
 }
 
 gather_service_and_event_logs_for_failed_agents() {
