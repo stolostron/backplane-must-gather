@@ -73,7 +73,7 @@ minimal shim (`collection-scripts/gather`) that sources
 ## Dependencies & Integrations
 
 - **Base images**: OpenShift CLI image (community: `origin-cli`; downstream: `ose-cli-rhel9`) for the builder stage; `ubi9/ubi-minimal` for runtime.
-- **CLI tools**: `oc` (primary), plus `jq`, `tar`, `gzip`, `rsync`, `findutils`, `yq`, `curl`; the `hypershift` binary is extracted at runtime rather than baked into the image.
+- **CLI tools**: `oc` (primary), plus `jq`, `tar`, `gzip`, `rsync`, `findutils`, `yq`, `curl`, `hypershift`.
 - **Runtime integration point**: OpenShift's `oc adm must-gather` framework.
 - **Related repos/components**: `stolostron/must-gather` (ACM superset, mirrored); `backplane-operator` and the `MultiClusterEngine` CR (detected at runtime); Hive, HyperShift, Assisted-Installer, metal3, and OCM subsystems (all inspected); `stolostron/konflux-build-catalog` for shared pipelines.
 
