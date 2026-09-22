@@ -243,11 +243,11 @@ gather_service_and_event_logs_for_failed_agents() {
         fi
 
         logsURL=$(yq eval '.status.debugInfo.logsURL' $file)
-        if [ -n ${logsURL} ]; then
+        if [ -n "${logsURL}" ]; then
                 curl -k -o $dir/$base.logs.tar "${logsURL}"
         fi
         eventsURL=$(yq eval '.status.debugInfo.eventsURL' $file)
-        if [ -n ${eventsURL} ]; then
+        if [ -n "${eventsURL}" ]; then
                 curl -k -o $dir/$base.events "${eventsURL}"
         fi
     done
@@ -380,5 +380,3 @@ if $SPOKE_CLUSTER; then
 fi
 
 exit 0
-
-}
