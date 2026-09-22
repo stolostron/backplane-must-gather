@@ -5,10 +5,9 @@
 
 
 BASE_COLLECTION_PATH=${BASE_COLLECTION_PATH:-"/must-gather"}
-mkdir -p ${BASE_COLLECTION_PATH}
 
 # Locally the script will fail due to /must-gather being a Read-only file directory.
-if [ $? -ne 0 ]; then
+if ! mkdir -p ${BASE_COLLECTION_PATH}; then
   echo -e "Failed to create base collection directory: $BASE_COLLECTION_PATH (defaulting path to: \"./must-gather\")."
 
   BASE_COLLECTION_PATH="./must-gather"
@@ -41,7 +40,8 @@ check_managed_clusters() {
 
     # to capture details in the managed cluster namespace to debug hive issues
     # refer https://github.com/open-cluster-management/backlog/issues/2682
-    local mc_namespaces=$(oc get managedclusters --all-namespaces --no-headers=true -o custom-columns="NAMESPACE:.metadata.name")
+    local mc_namespaces
+    mc_namespaces=$(oc get managedclusters --all-namespaces --no-headers=true -o custom-columns="NAMESPACE:.metadata.name")
 
     for mcns in ${mc_namespaces}; do
       oc adm inspect ns/"$mcns" --dest-dir=$BASE_COLLECTION_PATH
@@ -74,8 +74,8 @@ check_if_spoke () {
 check_if_hypershift () {
     # get the hosted cluster name and optionally namespace
     while [ "$1" != "" ]; do
-        FLAG=`echo $1 | awk -F= '{print $1}'`
-        VALUE=`echo $1 | awk -F= '{print $2}'`
+        FLAG=$(echo "$1" | awk -F= '{print $1}')
+        VALUE=$(echo "$1" | awk -F= '{print $2}')
         case $FLAG in
             hosted-cluster-name)
                 HC_NAME=$VALUE
@@ -100,7 +100,8 @@ gather_spoke () {
     for name in ${KLUSTERLETS_NAMES};
     do
       local agent_namespace
-      local mode=$(oc get klusterlets.operator.open-cluster-management.io "$name" -o jsonpath='{.spec.deployOption.mode}')
+      local mode
+      mode=$(oc get klusterlets.operator.open-cluster-management.io "$name" -o jsonpath='{.spec.deployOption.mode}')
       echo "klusterlet $name is deployed in $mode mode"
       if [ "$mode" = 'Hosted' ] || [ "$mode" = 'SingletonHosted' ];
       then
@@ -125,10 +126,7 @@ gather_spoke () {
 }
 
 extract_hypershift_cli() {
-  oc get namespace hypershift
-
-  if [ $? -ne 0 ];
-  then
+  if ! oc get namespace hypershift; then
     echo "hypershift namespace not found"
     return 1
   fi
@@ -176,14 +174,12 @@ dump_hostedcluster() {
 }
 
 # This is not supported yet
+# shellcheck disable=SC2317
 gather_all_hostedclusters() {
   oc adm inspect pod -n open-cluster-management-agent-addon --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect pod -n hypershift --dest-dir=$BASE_COLLECTION_PATH
 
-  oc get namespace hypershift
-
-  if [ $? -ne 0 ];
-  then
+  if ! oc get namespace hypershift; then
     echo "hypershift namespace not found"
     return
   fi
@@ -231,7 +227,7 @@ gather_all_hostedclusters() {
 
 gather_service_and_event_logs_for_failed_agents() {
     GATHER_DIR="$1"
-    find ${GATHER_DIR} -path '*/agentclusterinstalls/*.yaml' -type f | while read file; do
+    find ${GATHER_DIR} -path '*/agentclusterinstalls/*.yaml' -type f | while read -r file; do
         dir=$(dirname $file)
         base=$(basename -s .yaml $file)
 
@@ -243,21 +239,22 @@ gather_service_and_event_logs_for_failed_agents() {
         fi
 
         logsURL=$(yq eval '.status.debugInfo.logsURL' $file)
-        if [ -n ${logsURL} ]; then
+        if [ -n "${logsURL}" ]; then
                 curl -k -o $dir/$base.logs.tar "${logsURL}"
         fi
         eventsURL=$(yq eval '.status.debugInfo.eventsURL' $file)
-        if [ -n ${eventsURL} ]; then
+        if [ -n "${eventsURL}" ]; then
                 curl -k -o $dir/$base.events "${eventsURL}"
         fi
     done
   }
 
+# shellcheck disable=SC2129
 gather_hub() {
     check_managed_clusters
 
     # If the namespaces are different, capture the pods in each namespace.
-    if [[ $DEPLOYMENT_NAMESPACE != $OPERATOR_NAMESPACE ]]; then
+    if [[ $DEPLOYMENT_NAMESPACE != "$OPERATOR_NAMESPACE" ]]; then
       echo -e "\nMCE target and operator namespace are different"
 
       echo -e "Listing pods in $OPERATOR_NAMESPACE namespace:" >> ${BASE_COLLECTION_PATH}/gather-mce.log
@@ -380,5 +377,3 @@ if $SPOKE_CLUSTER; then
 fi
 
 exit 0
-
-}
