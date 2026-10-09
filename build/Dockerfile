@@ -1,0 +1,43 @@
+# Copyright (c) 2021 Red Hat, Inc.
+# Copyright Contributors to the Open Cluster Management project
+
+FROM quay.io/openshift/origin-cli:5.1 AS oc-cli
+
+FROM registry.access.redhat.com/ubi9/go-toolset:latest AS hypershift-cli
+
+WORKDIR /hypershift
+COPY --chown=default external/hypershift .
+RUN make hypershift
+
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+
+ENV BASE_COLLECTION_PATH=/must-gather \
+    USER_UID=1001 \
+    USER_NAME=must-gather
+
+RUN microdnf update -y \
+    && microdnf install -y jq tar gzip rsync findutils \
+    && microdnf clean all
+
+# Copy binaries
+COPY --from=oc-cli /usr/bin/oc /usr/bin/oc
+COPY --from=hypershift-cli /hypershift/bin/hypershift /usr/bin/hypershift
+
+# copy all collection scripts to /usr/bin
+COPY collection-scripts/* /usr/bin/
+
+# Setup non-root user
+COPY build/user_setup /usr/local/bin/
+RUN  /usr/local/bin/user_setup
+USER 1001
+
+ENTRYPOINT ["/usr/bin/gather"]
+
+LABEL name="multicluster-engine/must-gather-rhel9" \
+      url="https://github.com/stolostron/backplane-must-gather" \
+      summary="Must-gather scripts for Red Hat multicluster engine for Kubernetes" \
+      description="Must-gather scripts for Red Hat multicluster engine for Kubernetes" \
+      io.k8s.display-name="MCE Must-gather" \
+      io.k8s.description="Must-gather scripts for Red Hat multicluster engine for Kubernetes" \
+      com.redhat.component="backplane-must-gather-container" \
+      io.openshift.tags="data,images"

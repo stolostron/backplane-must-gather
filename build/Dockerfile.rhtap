@@ -31,13 +31,13 @@ COPY build/user_setup /usr/local/bin/
 RUN  /usr/local/bin/user_setup
 USER 1001
 
-ENTRYPOINT /usr/bin/gather
+ENTRYPOINT ["/usr/bin/gather"]
 
 LABEL name="multicluster-engine/must-gather-rhel9" \
+      url="https://github.com/stolostron/backplane-must-gather" \
       summary="Must-gather scripts for Red Hat multicluster engine for Kubernetes" \
       description="Must-gather scripts for Red Hat multicluster engine for Kubernetes" \
       io.k8s.display-name="MCE Must-gather" \
       io.k8s.description="Must-gather scripts for Red Hat multicluster engine for Kubernetes" \
       com.redhat.component="backplane-must-gather-container" \
-      io.openshift.tags="data,images" \
-      cpe="cpe:/a:redhat:multicluster_engine:2.17::el9"
+      io.openshift.tags="data,images"
