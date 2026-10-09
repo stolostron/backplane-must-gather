@@ -1,7 +1,7 @@
 # Copyright (c) 2021 Red Hat, Inc.
 # Copyright Contributors to the Open Cluster Management project
 
-FROM registry.redhat.io/openshift4/ose-cli-rhel9:v4.22 AS oc-cli
+FROM quay.io/openshift/origin-cli:5.1 AS oc-cli
 
 FROM registry.access.redhat.com/ubi9/go-toolset:latest AS hypershift-cli
 
@@ -9,7 +9,7 @@ WORKDIR /hypershift
 COPY --chown=default external/hypershift .
 RUN make hypershift
 
-FROM registry.redhat.io/ubi9/ubi-minimal-pqc:latest
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 
 ENV BASE_COLLECTION_PATH=/must-gather \
     USER_UID=1001 \

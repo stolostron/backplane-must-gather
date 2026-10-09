@@ -64,7 +64,7 @@ minimal shim (`collection-scripts/gather`) that sources
 
 ## Build, Test & Release
 
-- **Two Dockerfiles**: root `Dockerfile` for the community/upstream image (`origin-cli` builder → UBI9 minimal runtime); `build/Dockerfile.rhtap` for hermetic, multi-arch, productized Konflux builds (adds CPE label for automated security scanning).
+- **Two Dockerfiles**: root `Dockerfile` for the community/upstream image (`origin-cli` builder → UBI9 minimal runtime); `build/Dockerfile.rhtap` for hermetic, multi-arch, productized Konflux builds.
 - **Hermetic build inputs** (`build/rpms.in.yaml`, `build/rpms.lock.yaml`): pinned RPM lockfiles for `jq`, `tar`, `gzip`, `rsync`, `findutils` across four architectures, refreshed automatically.
 - **Konflux/Tekton** (`.tekton/`): PipelineRuns gated on `target_branch == "backplane-<X.Y>"`; multi-arch (`x86_64`, `ppc64le`, `s390x`, `arm64`) on push, `x86_64`-only on PR; pipeline definition resolved remotely from `stolostron/konflux-build-catalog`.
 - **GitHub Actions**: ShellCheck lint on `collection-scripts/*` for PRs to `main` and `backplane-[0-9]+.[0-9]+`; automated `OWNERS` file resync from `main` to release branches.
