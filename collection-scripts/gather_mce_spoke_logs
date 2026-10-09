@@ -1,0 +1,56 @@
+#! /bin/bash
+# Copyright (c) 2023 Red Hat, Inc.
+# Copyright Contributors to the Open Cluster Management project
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+# shellcheck source=collection-scripts/gather_utils
+source "${SCRIPT_DIR}/gather_utils"
+
+HC_NAME=${HC_NAME:-""}
+HC_NAMESPACE=${HC_NAMESPACE:-"clusters"}
+
+gather_spoke() {
+  # collect CRDs to aid automated must-gather readers
+  log "Gathering spoke information for MCE"
+
+  # Prevent duplicate collection if this is also a hub cluster.
+  if [[ "${IS_HUB:-false}" == "false" ]]; then
+    run_inspect customresourcedefinition.apiextensions.k8s.io
+    # Openshift operators
+    run_inspect ns/openshift-operators
+  fi
+
+  run_inspect klusterlets.operator.open-cluster-management.io --all-namespaces
+  run_inspect clusterclaims.cluster.open-cluster-management.io --all-namespaces
+  run_inspect appliedmanifestworks.work.open-cluster-management.io --all-namespaces
+
+  KLUSTERLETS_NAMES=$(oc get klusterlets.operator.open-cluster-management.io -o name)
+  for kind_name in ${KLUSTERLETS_NAMES}; do
+    local agent_namespace mode
+    local name="${kind_name#*/}"
+    mode=$(oc get "${kind_name}" -o jsonpath='{.spec.deployOption.mode}')
+    log "klusterlet ${name} is deployed in $mode mode"
+    if [ "${mode}" = 'Hosted' ] || [ "${mode}" = 'SingletonHosted' ]; then
+      agent_namespace=${name}
+    else
+      agent_namespace=$(oc get "${kind_name}" -o jsonpath='{.spec.namespace}')
+    fi
+
+    log "klusterlet name: ${name}, agent namespace: ${agent_namespace}"
+    run_inspect "ns/${agent_namespace}"
+  done
+
+  # gather all the customized addon namespaces
+  run_inspect ns/open-cluster-management-agent-addon
+  CUSTOMIZED_ADDON_NAMESPACES=$(oc get ns -l addon.open-cluster-management.io/namespace=true --no-headers=true -o custom-columns="NAME:.metadata.name")
+  for addon_namespace in ${CUSTOMIZED_ADDON_NAMESPACES}; do
+    run_inspect "ns/${addon_namespace}"
+  done
+
+  # Hosted Control Planes (Hypershift) information
+  run_inspect hostedclusters.hypershift.openshift.io --all-namespaces
+  run_inspect nodepools.hypershift.openshift.io --all-namespaces
+}
+
+log "Starting MCE Managed cluster must-gather"
+gather_spoke
