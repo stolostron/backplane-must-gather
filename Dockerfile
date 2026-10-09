@@ -6,7 +6,8 @@ FROM quay.io/openshift/origin-cli:5.1 AS oc-cli
 FROM registry.access.redhat.com/ubi9/go-toolset:latest AS hypershift-cli
 
 WORKDIR /hypershift
-COPY --chown=default external/hypershift .
+USER 0
+COPY external/hypershift .
 RUN make hypershift
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
