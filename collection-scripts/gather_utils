@@ -41,7 +41,8 @@ run_inspect() {
   log "Inspecting ${args}"
   # shellcheck disable=SC2086
   # - BASE_COLLECTION_PATH can't be quoted because `oc` reads the quotes as part of the path
-  oc adm inspect --dest-dir=${BASE_COLLECTION_PATH} "$@"
+  output=$( oc adm inspect --dest-dir=${BASE_COLLECTION_PATH} "$@" | sed 's/^/\t\t/')
+  log "$(printf 'Result:\n%s' "${output}")"
 }
 
 # Each potentially sensitive kind and "wrapper" kind should have an entry in this definition.
@@ -164,12 +165,12 @@ check_if_engine() {
 
 check_if_spoke() {
   log "Detecting Managed cluster by fetching Klusterlet CRD..."
-  if oc get crd klusterlets.operator.open-cluster-management.io; then
+  if output=$(oc get crd klusterlets.operator.open-cluster-management.io 2>&1); then
     log "The current cluster has klusterlets.operator.open-cluster-management.io crd, it is a spoke cluster."
     return 0
   fi
 
-  log "The current cluster does not have klusterlets.operator.open-cluster-management.io crd, it is not a spoke cluster."
+  log "$(printf 'The current cluster does not have klusterlets.operator.open-cluster-management.io crd, it is not a spoke cluster:\n\t\t%s' "${output}")"
   return 1
 }
 
