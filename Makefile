@@ -15,6 +15,16 @@ clean:
 run: clean
 	./collection-scripts/gather
 
+.PHONY: stop
+stop:
+	@for file in $$(find collection-scripts -name "gather*") "oc adm inspect"; do \
+		echo "Stopping $$file"; \
+		pid=$$(ps -ef | grep "$$file" | grep -v grep | awk '{print $$2}'); \
+		if [ -n "$$pid" ]; then \
+			kill $$pid; \
+		fi; \
+	done
+
 kubeconfig:
 	oc config view --minify --raw > kubeconfig
 
