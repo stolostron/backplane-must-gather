@@ -35,14 +35,17 @@ print_with_header() {
   printf "%s\n%s\n%s\n\n" "${header}" "${underline}" "${content}"
 }
 
-# run_inspect wraps `oc adm inspect` by logging the args and running it with common flags
+# run_inspect wraps `oc adm inspect` by logging the args and running it with common flags.
+# Returns the exit code from `oc adm inspect`.
 run_inspect() {
   args="$*"
   log "Inspecting ${args}"
   # shellcheck disable=SC2086
   # - BASE_COLLECTION_PATH can't be quoted because `oc` reads the quotes as part of the path
-  output=$( oc adm inspect --dest-dir=${BASE_COLLECTION_PATH} "$@" | sed 's/^/\t\t/')
-  log "$(printf 'Result:\n%s' "${output}")"
+  output=$(oc adm inspect --dest-dir=${BASE_COLLECTION_PATH} "$@" 2>&1)
+  local rc=$?
+  log "$(printf 'Result:\n\t%s' "${output//$'\n'/$'\n\t'}")"
+  return "${rc}"
 }
 
 # Each potentially sensitive kind and "wrapper" kind should have an entry in this definition.

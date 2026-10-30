@@ -161,7 +161,6 @@ gather_hub() {
   run_inspect operatorgroups.operators.coreos.com --all-namespaces
   run_inspect clusterversions.config.openshift.io --all-namespaces
 
-  run_inspect baremetalhosts.metal3.io --all-namespaces
   run_inspect preprovisioningimages.metal3.io --all-namespaces
 
   run_inspect placementdecisions.cluster.open-cluster-management.io --all-namespaces
@@ -259,7 +258,7 @@ gather_hub() {
   gather_service_and_event_logs_for_failed_agents "${BASE_COLLECTION_PATH}"
 
   # Capture metal3 logs if the customer has at least one baremetalhost cr which indicates that bmc is being used to create new clusters
-  if oc get baremetalhosts.metal3.io --all-namespaces &>/dev/null; then
+  if run_inspect baremetalhosts.metal3.io --all-namespaces; then
     run_inspect ns/openshift-machine-api
   fi
 }
