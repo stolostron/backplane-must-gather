@@ -234,6 +234,14 @@ gather_hub() {
   run_inspect rosacontrolplanes.controlplane.cluster.x-k8s.io --all-namespaces
   run_inspect rosamachinepools.infrastructure.cluster.x-k8s.io --all-namespaces
 
+  # Cluster API Provider Azure (CAPZ) and Azure Service Operator (ASO)
+  run_inspect aroclusters.infrastructure.cluster.x-k8s.io --all-namespaces
+  run_inspect arocontrolplanes.controlplane.cluster.x-k8s.io --all-namespaces
+  run_inspect aromachinepools.infrastructure.cluster.x-k8s.io --all-namespaces
+  run_inspect hcpopenshiftclusters.redhatopenshift.azure.com --all-namespaces
+  run_inspect hcpopenshiftclustersnodepools.redhatopenshift.azure.com --all-namespaces
+  run_inspect hcpopenshiftclustersexternalauths.redhatopenshift.azure.com --all-namespaces
+
   # CAPM3 CRs
   run_inspect metal3clusters.infrastructure.cluster.x-k8s.io --all-namespaces
   run_inspect metal3clustertemplates.infrastructure.cluster.x-k8s.io --all-namespaces
