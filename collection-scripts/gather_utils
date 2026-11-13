@@ -8,6 +8,7 @@ mkdir -p "${BASE_COLLECTION_PATH}"
 # - 1 argument:  Log message (default log level)
 # - 2 arguments: Custom log level and message
 log() {
+  local lvl msg subscript_name
   lvl="${1}"
   msg="${2}"
   subscript_name=$(basename "${0}")
@@ -27,6 +28,7 @@ log() {
 
 # print_header prints an underlined heading with a trailing newline
 print_with_header() {
+  local underline header content
   header=${1}
   content=${2}
   # shellcheck disable=SC2001
@@ -38,7 +40,9 @@ print_with_header() {
 # run_inspect wraps `oc adm inspect` by logging the args and running it with common flags.
 # Returns the exit code from `oc adm inspect`.
 run_inspect() {
+  local args output
   args="$*"
+
   log "Inspecting ${args}"
   # shellcheck disable=SC2086
   # - BASE_COLLECTION_PATH can't be quoted because `oc` reads the quotes as part of the path
@@ -46,6 +50,30 @@ run_inspect() {
   local rc=$?
   log "$(printf 'Result:\n\t%s' "${output//$'\n'/$'\n\t'}")"
   return "${rc}"
+}
+
+# detect_kind checks if a given kind is both present and non-empty in the cluster.
+detect_kind() {
+  local kind output err rc errfile
+  kind="${1}"
+  errfile=$(mktemp)
+
+  output=$(oc get "${kind}" --all-namespaces -o=name 2>"${errfile}")
+  rc=$?
+  err=$(<"${errfile}")
+  rm -f "${errfile}"
+
+  if [[ ${rc} == 0 ]] && [[ -n ${output} ]]; then
+    return 0
+  fi
+
+  if [[ ${rc} == 0 ]]; then
+    log "No ${kind} found."
+  else
+    log "Failed to fetch ${kind}: ${err}"
+  fi
+
+  return 1
 }
 
 # Each potentially sensitive kind and "wrapper" kind should have an entry in this definition.
@@ -167,6 +195,7 @@ check_if_engine() {
 }
 
 check_if_spoke() {
+  local output
   log "Detecting Managed cluster by fetching Klusterlet CRD..."
   if output=$(oc get crd klusterlets.operator.open-cluster-management.io 2>&1); then
     log "The current cluster has klusterlets.operator.open-cluster-management.io crd, it is a spoke cluster."
@@ -227,7 +256,7 @@ dump_hostedcluster() {
   fi
 
   log "Collecting must-gather for hosted cluster '${HC_NAME}' in namespace '${HC_NAMESPACE}'"
-  hypershift_cmd=("${HYPERSHIFT}" dump cluster --artifact-dir "${archive_path}" --name "${HC_NAME}" --namespace "${HC_NAMESPACE}")
+  local hypershift_cmd=("${HYPERSHIFT}" dump cluster --artifact-dir "${archive_path}" --name "${HC_NAME}" --namespace "${HC_NAMESPACE}")
   if ! "${hypershift_cmd[@]}" --dump-guest-cluster=fail-on-error; then
     log "WARN" "Failed to collect must-gather for hosted cluster '${HC_NAME}' in namespace '${HC_NAMESPACE}' using --dump-guest-cluster. Trying --dump-guest-cluster=fail-on-error,direct-kube-api-service-access."
     if ! "${hypershift_cmd[@]}" --dump-guest-cluster=fail-on-error,direct-kube-api-service-access; then
