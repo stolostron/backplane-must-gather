@@ -266,7 +266,8 @@ gather_hub() {
   gather_service_and_event_logs_for_failed_agents "${BASE_COLLECTION_PATH}"
 
   # Capture metal3 logs if the customer has at least one baremetalhost cr which indicates that bmc is being used to create new clusters
-  if run_inspect baremetalhosts.metal3.io --all-namespaces; then
+  if detect_kind baremetalhosts.metal3.io; then
+    run_inspect baremetalhosts.metal3.io --all-namespaces
     run_inspect ns/openshift-machine-api
   fi
 }
