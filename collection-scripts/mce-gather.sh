@@ -174,7 +174,7 @@ dump_hostedcluster() {
 }
 
 # This is not supported yet
-# shellcheck disable=SC2317
+# shellcheck disable=SC2317,SC2329
 gather_all_hostedclusters() {
   oc adm inspect pod -n open-cluster-management-agent-addon --dest-dir=$BASE_COLLECTION_PATH
   oc adm inspect pod -n hypershift --dest-dir=$BASE_COLLECTION_PATH
